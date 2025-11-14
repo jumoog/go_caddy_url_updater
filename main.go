@@ -38,6 +38,14 @@ func main() {
 	handle.OnPushEventAny(func(ctx context.Context, deliveryID string, eventName string, event *github.PushEvent) error {
 		newHash := event.GetAfter()
 
+		ref := event.GetRef()
+
+		// Only act on pushes to main branch
+		if !strings.EqualFold(ref, "refs/heads/main") {
+			log.Println("Push event is not for main branch. Ref:", ref)
+			return nil
+		}
+
 		log.Println("Push received. Commit:", newHash)
 
 		if err := updateCaddyfile(newHash); err != nil {
